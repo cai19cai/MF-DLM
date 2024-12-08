@@ -1,52 +1,44 @@
-# 清空当前工作环境  
+
 rm(list=ls())   
-
-# 设置工作目录  
-setwd("C:\\Users\\caicai\\Desktop\\影像组学预后模型\\0_code\\5 联合模型\\特征前融合\\RISK")   
-
-# 读取CSV文件  
+setwd("")   
+ 
 predprobtrain <- read.csv("train_pred_deephit.csv")  
 predprobtest <- read.csv("test_pred_deephit.csv")  
 predprobmulti <- read.csv("multi_pred_deephit.csv")
 predprobnac <- read.csv("nac_pred_deephit.csv")
-
-
-# 导入所需的库  
+ 
 library(survival)  
 library(dplyr)  
 library(survminer)  
 
-# 计算训练集最佳cutoff值  
+ 
 opti_cut <- surv_cutpoint(predprobtrain,   
                           time = "time",   
                           event = "status",   
                           variables = c("risk")) 
 # pdf('opti_cut.pdf',width =10,height = 10)
 # plot(opti_cut, "risk", palette = "npg")
-# dev.off() 
-# 打印最佳cutoff值  
+# dev.off()  
 summary(opti_cut)  
 
-# 对训练集进行分组  
 group_cut_train <- surv_categorize(opti_cut)  
 colnames(group_cut_train)[3] <- "riskgroup"  
 risk_train <-cbind(predprobtrain,group_cut_train["riskgroup"])
 write.csv(risk_train,"risk_train.csv",row.names = F)
-# 对测试集应用相同的截断值分类  
+
 predprobtest$riskgroup <- ifelse(predprobtest$risk > 8.00552    , "high", "low")
 risk_test<-predprobtest
 write.csv(predprobtest,"risk_validation.csv",row.names = F)
-# 对外部测试集应用相同的截断值分类
+
 predprobmulti$riskgroup <- ifelse(predprobmulti$risk > 8.00552    , "high", "low")
 risk_multi<-predprobmulti
 write.csv(predprobmulti,"risk_mutli.csv",row.names = F)
 
-# 对特殊测试集应用相同的截断值分类
 predprobnac$riskgroup <- ifelse(predprobnac$risk > 8.00552    , "high", "low")
 risk_nac<-predprobnac
 write.csv(predprobnac,"risk_nac.csv",row.names = F)
 
-# 按列合并四个数据框  
+
 dt <- rbind(risk_train, risk_test, risk_multi)  
 #dt <- rbind(dt_test, dt_multi)  
 dt2 <- rbind( risk_test, risk_multi)  
@@ -54,48 +46,40 @@ dt2 <- rbind( risk_test, risk_multi)
 write.csv(dt,"FB_score.csv",row.names = F)
 write.csv(dt2,"FB_score_notrain.csv",row.names = F)
 
-
-
-
-
-
-# 先将riskgroup因子的水平调整  
 risk_train$riskgroup <- factor(risk_train$riskgroup, levels = c('low', 'high'))  
 risk_test$riskgroup <- factor(risk_test$riskgroup, levels = c('low', 'high'))  
 risk_multi$riskgroup <- factor(risk_multi$riskgroup, levels = c('low', 'high'))  
 risk_nac$riskgroup <- factor(risk_nac$riskgroup, levels = c('low', 'high'))  
-
-
-# 绘制训练集生存曲线  
+ 
 fit_train <- survfit(Surv(time, status) ~ riskgroup, data = risk_train)  
-pdf('KM_deephit_train.pdf', width=6.5, height=6) # 新建一张pdf  
+pdf('KM_deephit_train.pdf', width=6.5, height=6) 
 train<-ggsurvplot(fit_train,  
-                  xlim = c(0, 140),  # X轴范围  
-                  xlab = 'Time (Months)',  # X轴标签  
-                  ylab = 'Overall Survival',  # y轴标签  
-                  pval = TRUE,  # 添加P值  
-                  pval.size = 3.5,  # P值展示大小  
-                  pval.coord = c(10, 0.1),  # P值位置，调整P值Y坐标，避免遮挡  
-                  pval.method = TRUE,  # 添加P值检验方法  
-                  pval.method.coord = c(0.05, 0.05),  # 检验方法位置  
-                  break.time.by = 24,  # X轴按照24进行切分  
-                  surv.median.line = "hv",  # 增加中位生存时间  
+                  xlim = c(0, 140),   
+                  xlab = 'Time (Months)',  
+                  ylab = 'Overall Survival',  
+                  pval = TRUE,   
+                  pval.size = 3.5,   
+                  pval.coord = c(10, 0.1),   
+                  pval.method = TRUE,   
+                  pval.method.coord = c(0.05, 0.05), 
+                  break.time.by = 24,  
+                  surv.median.line = "hv",  
                   ggtheme = theme_classic() +   
-                    theme(legend.background = element_blank()),  # 设置ggplot主题，图例背景透明  
-                  legend.labs = c('Low risk', 'High risk'),  # 改变图例标签顺序  
+                    theme(legend.background = element_blank()),    
+                  legend.labs = c('Low risk', 'High risk'),    
                   legend.title = 'Risk group',  
-                  legend = c(0.15, 0.25),  # 指定图例位置  
-                  fontsize = 2.8,  # 风险表字体大小  
-                  risk.table = 'abs_pct',  # 在下面添加风险表  
-                  risk.table.col = 'strata',  # 风险表颜色  
-                  tables.height = 0.23,  # 风险表高度占比  
-                  palette = c("#82B0D2", "#C85D4D"),  # 颜色，确保低风险为蓝色，高风险为红色  
-                  fun = 'pct'  # 生成绘图 
-                  )  # 作图  
-# 打印绘图  
+                  legend = c(0.15, 0.25),    
+                  fontsize = 2.8,   
+                  risk.table = 'abs_pct', 
+                  risk.table.col = 'strata', 
+                  tables.height = 0.23,  
+                  palette = c("#82B0D2", "#C85D4D"), 
+                  fun = 'pct' 
+                  )   
+  
 print(train, newpage = FALSE)  
 
-dev.off() # 关闭pdf  
+dev.off()
 
 # 绘制测试集生存曲线  
 fit_validation <- survfit(Surv(time, status) ~ riskgroup, data = risk_test)  
