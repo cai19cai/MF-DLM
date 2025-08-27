@@ -5,7 +5,7 @@ library(survival)
 library(mlr3verse)
 library(mlr3proba)
 library(mlr3extralearners)
-source("tidyfuncs4sa.R")
+source("precode.R")
 library(dplyr)
 
 library(doParallel)
@@ -278,4 +278,5 @@ save(predtrain_rsf,
      prednew_rsf,
      predprobnew_rsf,
      evalnew_rsf,  
+
      file = ".\\model\\rsf.RData")
