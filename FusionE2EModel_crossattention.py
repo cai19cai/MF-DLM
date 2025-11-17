@@ -1,5 +1,5 @@
 import numpy as np
-from resnet import resnet50
+from DLfeaturemodel import resnet50
 import torch
 import torch.nn as nn
 from densenet3D import DenseNet3D
