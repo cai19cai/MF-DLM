@@ -1,29 +1,17 @@
-# 清空当前工作环境  
 rm(list=ls())  
 library(dplyr)
-
-# 设置工作目录  
-setwd("C:\\Users\\caicai\\Desktop\\影像组学预后模型\\Eclinical修回\\3 MBDLM\\RISK")   
-dt_risk <- read.csv("FB_score.csv") 
+ 
+setwd("")   
+dt_risk <- read.csv(".csv") 
 dt_risk <-dt_risk[,-4]
-#dt_risk <- read.csv("FB_score_notrain.csv")  
-clinical<-read.csv("特殊病理特征.csv")  
-
-library(mice)
-clinical <- mice(clinical, #数据集
-                 method = "rf", #采用随机森林插补
-                 m=5, # 5次插补
-                 printFlag = FALSE, #不显示历史记录,
-                 seed = 123)###这边的种子是保证插补的可重复性
-clinical
-clinical<-complete(clinical, action = 3)###选择第3次插补的位置作为最终数据集
+#dt_risk <- read.csv(".csv")  
+clinical<-read.csv(".csv")  
 
 clinical <- na.omit(clinical)
 clinical <- clinical[complete.cases(clinical), ]
 
 data_list2 <- list(dt_risk, clinical)
 dt <- Reduce(function(x, y) merge(x, y, by = "ID"), data_list2)  
-#write.csv(dt_p,"dt_病理特征.csv",row.names = F)
 library(dplyr)
 dt <- dt %>%  
   mutate(riskgroup = ifelse(riskgroup == "high", "1", "0"))  
@@ -220,6 +208,7 @@ p_new <- plot_grid(p, plot_grid(legend1,legend2,legend3,legend4,legend5, legend6
                    rel_widths = c(2, 0.6))
 p_new
 ggsave("特殊病理特征条形图.pdf", plot = p_new , height =6, width =8)
+
 
 
 
