@@ -3,11 +3,11 @@ rm(list=ls())
 library(dplyr)
 
 # 设置工作目录  
-setwd("C:\\Users\\caicai\\Desktop\\影像组学预后模型\\Eclinical修回\\3 MBDLM\\RISK")   
-dt_risk <- read.csv("FB_score.csv") 
+setwd("")   
+dt_risk <- read.csv("") 
 dt_risk <-dt_risk[,-4]
-#dt_risk <- read.csv("FB_score_notrain.csv")  
-clinical<-read.csv("C:\\Users\\caicai\\Desktop\\影像组学预后模型\\Eclinical修回\\1 ML\\1 特征筛选\\data_MBDLM.csv")  
+#dt_risk <- read.csv("")  
+clinical<-read.csv("")  
 clinical<-clinical[, c(1,22:28)]
 
 data_list2 <- list(dt_risk, clinical)
@@ -341,6 +341,7 @@ p_new <- plot_grid(p, plot_grid(legend1,legend6,legend2,legend3,legend4, legend5
                    rel_widths = c(2, 0.5))
 p_new
 ggsave("不同危险度的病例特征条形图.pdf", plot = p, height =5.5, width =18)
+
 
 
 
