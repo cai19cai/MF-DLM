@@ -91,7 +91,6 @@ class ResNet(nn.Module):
         self.conv_seg = nn.Linear(in_features=2048, out_features=num_classes, bias=True)
         self.bn4 = nn.BatchNorm1d(1)
 
-        # 权重初始化
         for m in self.modules():
             if isinstance(m, nn.Conv3d):
                 nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
